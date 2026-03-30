@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutiara Laundry - Digital Business Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #0077B6;
+            --secondary: #00B4D8;
+            --white: #FFFFFF;
+            --success: #06D6A0;
+            --danger: #EF476F;
+            --glass: rgba(255, 255, 255, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #f0f4f8; color: #333; }
+
+        .app-container {
+            max-width: 450px; margin: 0 auto; background: var(--white); min-height: 100vh;
+            position: relative; overflow-x: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        }
+
+        /* --- LOGIN SCREEN --- */
+        #login-screen {
+            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; background: linear-gradient(to bottom, #e0f2f1, #ffffff);
+        }
+        .logo-ring { width: 100px; height: 100px; background: var(--primary); border-radius: 30px; 
+                     display: flex; align-items: center; justify-content: center; color: white; 
+                     font-size: 3rem; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        .btn-google {
+            width: 100%; padding: 16px; border: 2px solid #eee; border-radius: 15px; background: white;
+            display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 600;
+            cursor: pointer; transition: 0.3s;
+        }
+
+        /* --- MAIN APP --- */
+        #main-app { display: none; padding-bottom: 120px; }
+        
+        nav { padding: 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--glass); backdrop-filter: blur(10px); z-index: 100; border-bottom: 1px solid #eee; }
+        .user-trigger { width: 45px; height: 45px; border-radius: 12px; border: 2px solid var(--primary); cursor: pointer; }
+
+        /* MEMBER CARD */
+        .member-card {
+            margin: 20px; padding: 20px; border-radius: 25px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; box-shadow: 0 10px 20px rgba(0, 119, 182, 0.2);
+        }
+
+        /* GRID SYSTEM */
+        .section-label { padding: 0 20px 10px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px 20px; }
+        
+        .card {
+            background: #f8f9fa; border: 2px solid transparent; border-radius: 18px;
+            padding: 15px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .card.active { border-color: var(--primary); background: #eef8ff; transform: scale(1.02); }
+        .card.busy { opacity: 0.5; cursor: not-allowed; background: #eee; }
+        .card i { font-size: 1.5rem; color: var(--primary); margin-bottom: 5px; }
+
+        /* MODAL SYSTEM */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: white; width: 100%; border-radius: 30px; padding: 30px; text-align: center; position: relative; }
+
+        .btn-action { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; margin-top: 15px; }
+
+        /* STRUK DIGITAL STYLE */
+        .receipt {
+            background: #fdfdfd; border: 1px dashed #bbb; padding: 15px; border-radius: 10px;
+            margin: 15px 0; text-align: left; font-size: 0.85rem; line-height: 1.6;
+        }
+        .receipt-line { display: flex; justify-content: space-between; border-bottom: 1px inset #eee; margin-bottom: 5px; }
+
+        /* TIMER STYLE */
+        .timer-display { font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 15px 0; font-variant-numeric: tabular-nums; }
+
+        /* SOCIAL FAB */
+        .fab-group { position: fixed; right: 20px; bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
+        .fab { width: 50px; height: 50px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div id="login-screen">
+        <div class="logo-ring"><i class="fas fa-gem"></i></div>
+        <h1 style="color: var(--primary)">Mutiara Laundry</h1>
+        <p style="color: #888; margin-bottom: 30px;">Digital Business Innovation</p>
+        <button class="btn-google" onclick="handleLogin()">
+            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20">
+            Masuk dengan Google
+        </button>
+    </div>
+
+    <div id="main-app">
+        <nav>
+            <div>
+                <small style="color: #999">Halo,</small>
+                <h3 id="display-name">Cerryfull</h3>
+            </div>
+            <img id="display-photo" src="" class="user-trigger" onclick="toggleModal('profile-modal')">
+        </nav>
+
+        <div class="member-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <p style="opacity: 0.8; font-size: 0.7rem;">Mutiara Gold Member</p>
+                    <h2 style="margin-top: 5px;">M-2026-UNIMED</h2>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">
+                    <i class="fas fa-coins"></i> <span id="pts-count">1.250</span> Pts
+                </div>
+            </div>
+        </div>
+
+        <div class="section-label"><i class="fas fa-star"></i> Layanan Tambahan</div>
+        <div class="grid">
+            <div class="card" id="setrika-card" onclick="toggleSetrika()">
+                <i class="fas fa-iron"></i>
+                <p>Setrika Uap</p>
+                <small>+ Rp 5.000</small>
+            </div>
+            <div class="card" onclick="toggleModal('testi-modal')">
+                <i class="fas fa-comment-alt"></i>
+                <p>Kirim Testi</p>
+                <small>Get +10 Pts</small>
+            </div>
+        </div>
+
+        <div class="section-label"><i class="fas fa-washing-machine"></i> 4 Mesin Cuci</div>
+        <div class="grid">
+            <div class="card" onclick="selectMachine(this, 'C-01')"><i class="fas fa-recycle"></i><br>C-01<br><small style="color:var(--success)">Tersedia</small></div>
+            <div class="card" onclick="selectMachine(this, 'C-02')"><i class="fas fa-recycle"></i><br>C-02<br><small style="color:var(--success)">Tersedia</small></div>
+            <div class="card busy"><i class="fas fa-recycle"></i><br>C-03<br><small style="color:var(--danger)">Sibuk</small></div>
+            <div class="card" onclick="selectMachine(this, 'C-04')"><i class="fas fa-recycle"></i><br>C-04<br><small style="color:var(--success)">Tersedia</small></div>
+        </div>
+
+        <div class="section-label"><i class="fas fa-wind"></i> 4 Mesin Pengering</div>
+        <div class="grid">
+            <div class="card" onclick="selectMachine(this, 'D-01')"><i class="fas fa-sun"></i><br>D-01<br><small style="color:var(--success)">Tersedia</small></div>
+            <div class="card" onclick="selectMachine(this, 'D-02')"><i class="fas fa-sun"></i><br>D-02<br><small style="color:var(--success)">Tersedia</small></div>
+            <div class="card busy"><i class="fas fa-sun"></i><br>D-03<br><small style="color:var(--danger)">Sibuk</small></div>
+            <div class="card" onclick="selectMachine(this, 'D-04')"><i class="fas fa-sun"></i><br>D-04<br><small style="color:var(--success)">Tersedia</small></div>
+        </div>
+
+        <button class="btn-action" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; z-index:90" onclick="startPay()">
+            Bayar via QRIS
+        </button>
+
+        <div class="fab-group">
+            <a href="https://wa.me/62812345678" class="fab" style="background:#25D366"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://instagram.com/mutiaralaundry" class="fab" style="background:#E1306C"><i class="fab fa-instagram"></i></a>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal">
+        <div class="modal-box">
+            <img id="profile-img-modal" src="" style="width:80px; border-radius:50%; margin-bottom:15px; border:2px solid var(--primary)">
+            <h2 id="profile-name-modal">User</h2>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-action" style="background:#eee; color:#333" onclick="location.reload()">Logout</button>
+                <button class="btn-action" style="background:var(--danger)" onclick="alert('Akun dihapus.'); location.reload()">Hapus Akun</button>
+            </div>
+            <p onclick="toggleModal('profile-modal')" style="margin-top:15px; cursor:pointer; color:#999">Tutup</p>
+        </div>
+    </div>
+
+    <div id="qris-modal" class="modal">
+        <div class="modal-box">
+            <h3>Scan QRIS Mutiara</h3>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" width="200" style="margin:20px auto; display:block">
+            <button class="btn-action" onclick="confirmPayment()">Konfirmasi Bayar</button>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal">
+        <div class="modal-box">
+            <div style="font-size:4rem; color:var(--success); margin-bottom:10px;"><i class="fas fa-check-circle"></i></div>
+            <h2 style="color: var(--primary)">Pembayaran Berhasil!</h2>
+            <p style="color: #888; font-size: 0.9rem;">Pintu mesin akan terbuka otomatis</p>
+            
+            <div class="receipt">
+                <div class="receipt-line"><span>ID Transaksi</span><strong>#ML-202688</strong></div>
+                <div class="receipt-line"><span>Mesin</span><strong id="rec-machine">-</strong></div>
+                <div class="receipt-line"><span>Layanan</span><strong id="rec-service">Reguler</strong></div>
+                <div class="receipt-line"><span>Total</span><strong>Rp 10.000</strong></div>
+                <div class="receipt-line" style="border:none"><span>Status</span><strong style="color:var(--success)">LUNAS</strong></div>
+            </div>
+
+            <button class="btn-action" onclick="goToTimer()">Mulai Cuci Sekarang</button>
+        </div>
+    </div>
+
+    <div id="running-modal" class="modal">
+        <div class="modal-box">
+            <i class="fas fa-sync fa-spin" style="font-size:3rem; color:var(--primary)"></i>
+            <h2 style="margin-top:15px;">Mesin Sedang Berjalan</h2>
+            <p>Estimasi waktu selesai (1.5 Jam):</p>
+            <div id="laundry-timer" class="timer-display">01:30:00</div>
+            <p style="font-size:0.8rem; color:var(--danger)">Jangan buka pintu mesin selama proses!</p>
+            <button class="btn-action" style="background:#f8f9fa; color:#333" onclick="fastForward()">Demo: Skip Waktu</button>
+        </div>
+    </div>
+
+    <div id="finish-modal" class="modal">
+        <div class="modal-box">
+            <div style="font-size:4rem; color:var(--success); margin-bottom:15px;"><i class="fas fa-smile-beam"></i></div>
+            <h2>Selesai Digunakan!</h2>
+            <p>Silakan ambil pakaian Anda di mesin <strong id="m-done"></strong>.</p>
+            <p style="color:var(--success); font-weight:bold; margin-top:10px;">+50 Poin Berhasil Ditambahkan!</p>
+            <button class="btn-action" onclick="backToDashboard()">Kembali ke Dashboard</button>
+        </div>
+    </div>
+
+    <div id="testi-modal" class="modal">
+        <div class="modal-box">
+            <h3>Berikan Ulasan</h3>
+            <textarea placeholder="Bagaimana hasilnya?" style="width:100%; height:80px; margin:15px 0; padding:10px; border-radius:10px; border:1px solid #ddd;"></textarea>
+            <input type="file" id="media" style="display:none">
+            <label for="media" style="display:block; padding:15px; border:2px dashed var(--secondary); border-radius:10px; cursor:pointer; margin-bottom:15px;">
+                <i class="fas fa-video"></i> Upload Foto/Video
+            </label>
+            <button class="btn-action" onclick="alert('Terima kasih!'); toggleModal('testi-modal')">Kirim</button>
+            <p onclick="toggleModal('testi-modal')" style="margin-top:10px; color:red; cursor:pointer">Batal</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentMachine = "";
+    let isSetrika = false;
+    let timerInterval;
+    let points = 1250;
+
+    function handleLogin() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        const photo = "https://api.dicebear.com/7.x/avataaars/svg?seed=Cerry";
+        document.getElementById('display-photo').src = photo;
+        document.getElementById('profile-img-modal').src = photo;
+    }
+
+    function selectMachine(el, name) {
+        if(el.classList.contains('busy')) return;
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        currentMachine = name;
+    }
+
+    function toggleSetrika() {
+        isSetrika = !isSetrika;
+        document.getElementById('setrika-card').classList.toggle('active', isSetrika);
+    }
+
+    function toggleModal(id) {
+        const m = document.getElementById(id);
+        m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function startPay() {
+        if(!currentMachine) return alert("Pilih mesin dulu!");
+        toggleModal('qris-modal');
+    }
+
+    function confirmPayment() {
+        toggleModal('qris-modal');
+        
+        // Update data struk
+        document.getElementById('rec-machine').innerText = currentMachine;
+        document.getElementById('rec-service').innerText = isSetrika ? "Reguler + Setrika" : "Reguler";
+        
+        // Tampilkan Modal Sukses
+        toggleModal('success-modal');
+
+        // Jalankan Efek Konfeti
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#0077B6', '#00B4D8', '#06D6A0']
+        });
+    }
+
+    function goToTimer() {
+        toggleModal('success-modal');
+        toggleModal('running-modal');
+        startTimer(90 * 60); // 1.5 jam
+    }
+
+    function startTimer(duration) {
+        let timer = duration, hours, minutes, seconds;
+        timerInterval = setInterval(() => {
+            hours = parseInt(timer / 3600, 10);
+            minutes = parseInt((timer % 3600) / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            document.getElementById('laundry-timer').textContent = hours + ":" + minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                finishLaundry();
+            }
+        }, 1000);
+    }
+
+    function fastForward() {
+        clearInterval(timerInterval);
+        finishLaundry();
+    }
+
+    function finishLaundry() {
+        document.getElementById('running-modal').style.display = 'none';
+        document.getElementById('m-done').innerText = currentMachine;
+        toggleModal('finish-modal');
+    }
+
+    function backToDashboard() {
+        // Update Poin (Stay Logged In)
+        points += 50;
+        document.getElementById('pts-count').innerText = points.toLocaleString();
+        
+        // Tutup modal finish
+        toggleModal('finish-modal');
+        
+        // Reset pilihan mesin di dashboard
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        currentMachine = "";
+        isSetrika = false;
+        document.getElementById('setrika-card').classList.remove('active');
+    }
+</script>
+
+</body>
+</html>
